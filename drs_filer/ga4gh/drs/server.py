@@ -1,7 +1,7 @@
 """Controllers for DRS endpoints."""
 
 import logging
-from typing import (Dict, Tuple)
+from typing import (List, Dict, Tuple)
 
 from flask import (current_app, request)
 from foca.utils.logging import log_traffic
@@ -21,6 +21,24 @@ from drs_filer.ga4gh.drs.endpoints.service_info import (
 )
 
 logger = logging.getLogger(__name__)
+
+@log_traffic
+def GetAllObjects() -> List[Dict]:
+    """Get all DRS objects.
+
+    Returns:
+        List of DRS objects as dictionaries, JSONified if returned in app context.
+    """
+    db_collection = (
+        current_app.config.foca.db.dbs['drsStore'].
+        collections['objects'].client
+    )
+    cursor = db_collection.find({})
+    objects = []
+    for obj in cursor:
+        del obj["_id"]
+        objects.append(obj)
+    return objects
 
 
 @log_traffic
